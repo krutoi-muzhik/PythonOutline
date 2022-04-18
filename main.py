@@ -21,9 +21,7 @@ class CustomListener (Python3Listener):
 
     def enterFuncdef (self, ctx:Python3Parser.FuncdefContext):
         if self.IN == 0:
-            print (self.pathname, ctx.DEF(), ctx.NAME())
-
-            print ("ARROW = ", ctx.ARROW(), "")
+            #print (self.pathname, ctx.DEF(), ctx.NAME())
 
             #self.cursor.execute ("SELECT file FROM objects")
             self.cursor.execute ("INSERT INTO objects (file, type, name) VALUES (\'{}\', \'{}\', \'{}\')".format (self.pathname, ctx.DEF(), ctx.NAME()))
@@ -35,7 +33,7 @@ class CustomListener (Python3Listener):
 
     def enterAsync_funcdef(self, ctx:Python3Parser.Async_funcdefContext):
         if self.IN == 0:
-            print (self.pathname, ctx.ASYNC(), ctx.NAME())
+            #print (self.pathname, ctx.ASYNC(), ctx.NAME())
 
             #self.cursor.execute ("SELECT file FROM objects")
             self.cursor.execute ("INSERT INTO objects (file, type, name) VALUES (\'{}\', \'{}\', \'{}\')".format (self.pathname, ctx.ASYNC(), ctx.NAME()))
@@ -47,7 +45,7 @@ class CustomListener (Python3Listener):
 
     def enterClassdef (self, ctx:Python3Parser.ClassdefContext):
         if self.IN == 0:
-            print (self.pathname, ctx.CLASS(), ctx.NAME())
+            #print (self.pathname, ctx.CLASS(), ctx.NAME())
 
             #self.cursor.execute ("SELECT file FROM objects")
             self.cursor.execute ("INSERT INTO objects (file, type, name) VALUES (\'{}\', \'{}\', \'{}\')".format (self.pathname, ctx.CLASS(), ctx.NAME()))
