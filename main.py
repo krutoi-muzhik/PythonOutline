@@ -86,7 +86,6 @@ def ListenFile (pathname, db, cursor):
     walker.walk (handler, tree)
 
 
-
 def main ():
     db, cursor = initDB ('objects.db')
 
