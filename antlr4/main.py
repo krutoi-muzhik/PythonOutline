@@ -1,5 +1,6 @@
 import sys
 import sqlite3
+
 from antlr4 import *
 from Python3Lexer import Python3Lexer
 from Python3Parser import Python3Parser
@@ -17,11 +18,10 @@ class CustomVisitor (Python3Visitor):
     def PATHNAME (self):
         return self.pathname
 
-    IN:int = 0
-
     def visitFuncdef(self, ctx:Python3Parser.FuncdefContext):
         if self.IN == 0:
-            self.cursor.execute ("INSERT INTO objects (file, type, name, startline, endline) VALUES (\'{}\', \'{}\', \'{}\', \'{}\', \'{}\')".format (self.pathname, ctx.DEF(), ctx.NAME(), ctx.start.line, ctx.stop.line))
+            self.cursor.execute ('''INSERT INTO objects (file, type, name, startline, endline)
+                                    VALUES (\'{}\', \'{}\', \'{}\', \'{}\', \'{}\')'''.format (self.pathname, ctx.DEF(), ctx.NAME(), ctx.start.line, ctx.stop.line))
 
 
         self.IN += 1
@@ -30,13 +30,12 @@ class CustomVisitor (Python3Visitor):
 
     def visitClassdef(self, ctx:Python3Parser.ClassdefContext):
         if self.IN == 0:
-            self.cursor.execute ("INSERT INTO objects (file, type, name, startline, endline) VALUES (\'{}\', \'{}\', \'{}\', \'{}\', \'{}\')".format (self.pathname, ctx.CLASS(), ctx.NAME(), ctx.start.line, ctx.stop.line))
+            self.cursor.execute ('''INSERT INTO objects (file, type, name, startline, endline) 
+                                    VALUES (\'{}\', \'{}\', \'{}\', \'{}\', \'{}\')'''.format (self.pathname, ctx.CLASS(), ctx.NAME(), ctx.start.line, ctx.stop.line))
 
         self.IN += 1
         self.visitChildren(ctx)
         self.IN -= 1
-
-
 
 
 class CustomListener (Python3Listener):
@@ -48,13 +47,12 @@ class CustomListener (Python3Listener):
     def PATHNAME (self):
         return self.pathname
 
-    IN:int = 0
-
     def enterFuncdef (self, ctx:Python3Parser.FuncdefContext):
         if self.IN == 0:
             #self.cursor.execute ("SELECT file FROM objects")
             #print ("start = ", ctx.start.line, "stop = ", ctx.stop.line)
-            self.cursor.execute ("INSERT INTO objects (file, type, name, startline, endline) VALUES (\'{}\', \'{}\', \'{}\', \'{}\', \'{}\')".format (self.pathname, ctx.DEF(), ctx.NAME(), ctx.start.line, ctx.stop.line))
+            self.cursor.execute ('''INSERT INTO objects (file, type, name, startline, endline) 
+                                    VALUES (\'{}\', \'{}\', \'{}\', \'{}\', \'{}\')'''.format (self.pathname, ctx.DEF(), ctx.NAME(), ctx.start.line, ctx.stop.line))
             self.db.commit ()
         self.IN += 1
 
@@ -65,7 +63,8 @@ class CustomListener (Python3Listener):
         if self.IN == 0:
             #self.cursor.execute ("SELECT file FROM objects")
             #print ("start = ", ctx.start.line, "stop = ", ctx.stop.line)
-            self.cursor.execute ("INSERT INTO objects (file, type, name, startline, endline) VALUES (\'{}\', \'{}\', \'{}\', \'{}\', \'{}\')".format (self.pathname, ctx.ASYNC(), ctx.NAME(), ctx.start.line, ctx.stop.line))
+            self.cursor.execute ('''INSERT INTO objects (file, type, name, startline, endline) 
+                                    VALUES (\'{}\', \'{}\', \'{}\', \'{}\', \'{}\')'''.format (self.pathname, ctx.ASYNC(), ctx.NAME(), ctx.start.line, ctx.stop.line))
             self.db.commit ()
         self.IN += 1
 
@@ -76,7 +75,8 @@ class CustomListener (Python3Listener):
         if self.IN == 0:
             #self.cursor.execute ("SELECT file FROM objects")
             #print ("start = ", ctx.start.line, "stop = ", ctx.stop.line)
-            self.cursor.execute ("INSERT INTO objects (file, type, name, startline, endline) VALUES (\'{}\', \'{}\', \'{}\', \'{}\', \'{}\')".format (self.pathname, ctx.CLASS(), ctx.NAME(), ctx.start.line, ctx.stop.line))
+            self.cursor.execute ('''INSERT INTO objects (file, type, name, startline, endline) 
+                                    VALUES (\'{}\', \'{}\', \'{}\', \'{}\', \'{}\')'''.format (self.pathname, ctx.CLASS(), ctx.NAME(), ctx.start.line, ctx.stop.line))
             self.db.commit ()
         self.IN += 1
 
@@ -88,7 +88,7 @@ def initDB (pathname):
     db = sqlite3.connect (pathname)
     cursor = db.cursor ()
 
-    cursor.execute ("""CREATE TABLE IF NOT EXISTS objects (file TEXT, type TEXT, name TEXT, startline TEXT, endline TEXT)""")
+    cursor.execute ('''CREATE TABLE IF NOT EXISTS objects (file TEXT, type TEXT, name TEXT, startline TEXT, endline TEXT)''')
 
     db.commit ()
     return db, cursor
