@@ -9,6 +9,7 @@ from Python3Visitor import Python3Visitor
 
 class CustomVisitor (Python3Visitor):
     def __init__ (self, pathname, db, cursor):
+        self.IN:int = 0
         self.pathname = pathname
         self.db = db
         self.cursor = cursor
@@ -16,11 +17,26 @@ class CustomVisitor (Python3Visitor):
     def PATHNAME (self):
         return self.pathname
 
+    IN:int = 0
+
     def visitFuncdef(self, ctx:Python3Parser.FuncdefContext):
-        return self.visitChildren(ctx)
+        if IN == 0:
+            print ("pathname = ", self.PATHNAME(), "type = ", ctx.DEF(), "name = ", ctx.NAME(), "start = ", self.start.line, "stop = ", self.stop.line)
+
+
+        IN += 1
+        self.visitChildren(ctx)
+        IN -= 1
 
     def visitClassdef(self, ctx:Python3Parser.ClassdefContext):
-        return self.visitChildren(ctx)
+        if IN == 0:
+            print ("pathname = ", self.PATHNAME(), "type = ", ctx.DEF(), "name = ", ctx.NAME(), "start = ", self.start.line, "stop = ", self.stop.line)
+
+        IN += 1
+        self.visitChildren(ctx)
+        IN -= 1
+
+
 
 
 class CustomListener (Python3Listener):
@@ -83,17 +99,26 @@ def PrintDB (cursor):
         print (value)
 
 
-def ListenFile (pathname, db, cursor):
+def ParseFile (pathname):
     input_stream = FileStream (pathname)
     lexer = Python3Lexer (input_stream)
     stream = CommonTokenStream (lexer)
     parser = Python3Parser (stream)
-    tree = parser.file_input ()
+    return parser.file_input ()
 
+
+def ListenFile (pathname, db, cursor):
+    tree = ParseTree (pathname)
     handler = CustomListener (pathname, db, cursor)
     handler.IN = 0
     walker = ParseTreeWalker ()
     walker.walk (handler, tree)
+
+
+def VisitFile (pathname, db, cursor):
+    tree = ParseFile (pathname)
+    visitor = MyVisitor(pathname, db, cursor)
+    visitor.visit(tree)
 
 
 def main ():
