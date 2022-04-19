@@ -20,21 +20,21 @@ class CustomVisitor (Python3Visitor):
     IN:int = 0
 
     def visitFuncdef(self, ctx:Python3Parser.FuncdefContext):
-        if IN == 0:
-            print ("pathname = ", self.PATHNAME(), "type = ", ctx.DEF(), "name = ", ctx.NAME(), "start = ", self.start.line, "stop = ", self.stop.line)
+        if self.IN == 0:
+            self.cursor.execute ("INSERT INTO objects (file, type, name, startline, endline) VALUES (\'{}\', \'{}\', \'{}\', \'{}\', \'{}\')".format (self.pathname, ctx.DEF(), ctx.NAME(), ctx.start.line, ctx.stop.line))
 
 
-        IN += 1
+        self.IN += 1
         self.visitChildren(ctx)
-        IN -= 1
+        self.IN -= 1
 
     def visitClassdef(self, ctx:Python3Parser.ClassdefContext):
-        if IN == 0:
-            print ("pathname = ", self.PATHNAME(), "type = ", ctx.DEF(), "name = ", ctx.NAME(), "start = ", self.start.line, "stop = ", self.stop.line)
+        if self.IN == 0:
+            self.cursor.execute ("INSERT INTO objects (file, type, name, startline, endline) VALUES (\'{}\', \'{}\', \'{}\', \'{}\', \'{}\')".format (self.pathname, ctx.CLASS(), ctx.NAME(), ctx.start.line, ctx.stop.line))
 
-        IN += 1
+        self.IN += 1
         self.visitChildren(ctx)
-        IN -= 1
+        self.IN -= 1
 
 
 
@@ -53,8 +53,8 @@ class CustomListener (Python3Listener):
     def enterFuncdef (self, ctx:Python3Parser.FuncdefContext):
         if self.IN == 0:
             #self.cursor.execute ("SELECT file FROM objects")
-            print ("start = ", ctx.start.line, "stop = ", ctx.stop.line)
-            self.cursor.execute ("INSERT INTO objects (file, type, name) VALUES (\'{}\', \'{}\', \'{}\')".format (self.pathname, ctx.DEF(), ctx.NAME()))
+            #print ("start = ", ctx.start.line, "stop = ", ctx.stop.line)
+            self.cursor.execute ("INSERT INTO objects (file, type, name, startline, endline) VALUES (\'{}\', \'{}\', \'{}\', \'{}\', \'{}\')".format (self.pathname, ctx.DEF(), ctx.NAME(), ctx.start.line, ctx.stop.line))
             self.db.commit ()
         self.IN += 1
 
@@ -64,8 +64,8 @@ class CustomListener (Python3Listener):
     def enterAsync_funcdef(self, ctx:Python3Parser.Async_funcdefContext):
         if self.IN == 0:
             #self.cursor.execute ("SELECT file FROM objects")
-            print ("start = ", ctx.start.line, "stop = ", ctx.stop.line)
-            self.cursor.execute ("INSERT INTO objects (file, type, name) VALUES (\'{}\', \'{}\', \'{}\')".format (self.pathname, ctx.ASYNC(), ctx.NAME()))
+            #print ("start = ", ctx.start.line, "stop = ", ctx.stop.line)
+            self.cursor.execute ("INSERT INTO objects (file, type, name, startline, endline) VALUES (\'{}\', \'{}\', \'{}\', \'{}\', \'{}\')".format (self.pathname, ctx.ASYNC(), ctx.NAME(), ctx.start.line, ctx.stop.line))
             self.db.commit ()
         self.IN += 1
 
@@ -75,8 +75,8 @@ class CustomListener (Python3Listener):
     def enterClassdef (self, ctx:Python3Parser.ClassdefContext):
         if self.IN == 0:
             #self.cursor.execute ("SELECT file FROM objects")
-            print ("start = ", ctx.start.line, "stop = ", ctx.stop.line)
-            self.cursor.execute ("INSERT INTO objects (file, type, name) VALUES (\'{}\', \'{}\', \'{}\')".format (self.pathname, ctx.CLASS(), ctx.NAME()))
+            #print ("start = ", ctx.start.line, "stop = ", ctx.stop.line)
+            self.cursor.execute ("INSERT INTO objects (file, type, name, startline, endline) VALUES (\'{}\', \'{}\', \'{}\', \'{}\', \'{}\')".format (self.pathname, ctx.CLASS(), ctx.NAME(), ctx.start.line, ctx.stop.line))
             self.db.commit ()
         self.IN += 1
 
@@ -88,7 +88,7 @@ def initDB (pathname):
     db = sqlite3.connect (pathname)
     cursor = db.cursor ()
 
-    cursor.execute ("""CREATE TABLE IF NOT EXISTS objects (file TEXT, type TEXT, name TEXT)""")
+    cursor.execute ("""CREATE TABLE IF NOT EXISTS objects (file TEXT, type TEXT, name TEXT, startline TEXT, endline TEXT)""")
 
     db.commit ()
     return db, cursor
@@ -117,7 +117,7 @@ def ListenFile (pathname, db, cursor):
 
 def VisitFile (pathname, db, cursor):
     tree = ParseFile (pathname)
-    visitor = MyVisitor(pathname, db, cursor)
+    visitor = CustomVisitor(pathname, db, cursor)
     visitor.visit(tree)
 
 
@@ -127,7 +127,7 @@ def main ():
     paths = input ()
     for value in paths.split(" "):
         if value != "":
-            ListenFile (value, db, cursor)
+            VisitFile (value, db, cursor)
 
     PrintDB (cursor)
 
