@@ -1,0 +1,6 @@
+# Compiled
+*.pyc
+
+# Directories
+examples
+__pycache__
