@@ -110,7 +110,6 @@ def ParseFile (pathname):
 def ListenFile (pathname, db, cursor):
     tree = ParseTree (pathname)
     handler = CustomListener (pathname, db, cursor)
-    handler.IN = 0
     walker = ParseTreeWalker ()
     walker.walk (handler, tree)
 

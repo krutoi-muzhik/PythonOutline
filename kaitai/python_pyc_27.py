@@ -46,13 +46,14 @@ class PythonPyc27(KaitaiStruct):
         v27_a0d = 62201
         v27_a0e = 62211
     def __init__(self, _io, _parent=None, _root=None):
+        print ("init pyc27")
         self._io = _io
         self._parent = _parent
         self._root = _root if _root else self
         self._read()
 
     def _read(self):
-        print ("started read")
+        print ("pyc27 read")
         self.version_magic = KaitaiStream.resolve_enum(PythonPyc27.Version, self._io.read_u2le())
         self.crlf = self._io.read_u2le()
         self.modification_timestamp = self._io.read_u4le()
@@ -247,6 +248,7 @@ class PythonPyc27(KaitaiStruct):
 
         def _read(self):
             self.op_code = KaitaiStream.resolve_enum(PythonPyc27.OpArg.OpCodeEnum, self._io.read_u1())
+            print ("op_code = ", self.op_code)
             if self.op_code.value >= PythonPyc27.OpArg.OpCodeEnum.store_name.value:
                 self.arg = self._io.read_u2le()
 
@@ -266,43 +268,35 @@ class PythonPyc27(KaitaiStruct):
             interned = 116
             unicode_string = 117
         def __init__(self, _io, _parent=None, _root=None):
-            print ("started PyObject read")
+            print ("PyObject init")
             self._io = _io
             self._parent = _parent
             self._root = _root if _root else self
             self._read()
 
         def _read(self):
+            print ("PyObject read")
             self.type = KaitaiStream.resolve_enum(PythonPyc27.PyObject.ObjectType, self._io.read_u1())
             print ("type = ", self.type)
             _on = self.type
             if _on == PythonPyc27.PyObject.ObjectType.string:
                 self.value = PythonPyc27.PyObject.PyString(self._io, self, self._root)
-                print ("value = ", self.value)
             elif _on == PythonPyc27.PyObject.ObjectType.tuple:
                 self.value = PythonPyc27.PyObject.Tuple(self._io, self, self._root)
-                print ("value = ", self.value)
             elif _on == PythonPyc27.PyObject.ObjectType.int:
                 self.value = self._io.read_u4le()
-                print ("value = ", self.value)
             elif _on == PythonPyc27.PyObject.ObjectType.py_true:
                 self.value = PythonPyc27.PyObject.PyTrue(self._io, self, self._root)
-                print ("value = ", self.value)
             elif _on == PythonPyc27.PyObject.ObjectType.py_false:
                 self.value = PythonPyc27.PyObject.PyFalse(self._io, self, self._root)
-                print ("value = ", self.value)
             elif _on == PythonPyc27.PyObject.ObjectType.none:
                 self.value = PythonPyc27.PyObject.PyNone(self._io, self, self._root)
-                print ("value = ", self.value)
             elif _on == PythonPyc27.PyObject.ObjectType.string_ref:
                 self.value = PythonPyc27.PyObject.StringRef(self._io, self, self._root)
-                print ("value = ", self.value)
             elif _on == PythonPyc27.PyObject.ObjectType.code_object:
                 self.value = PythonPyc27.CodeObject(self._io, self, self._root)
-                print ("value = ", self.value)
             elif _on == PythonPyc27.PyObject.ObjectType.interned:
                 self.value = PythonPyc27.PyObject.InternedString(self._io, self, self._root)
-                print ("value = ", self.value)
 
         class PyNone(KaitaiStruct):
             def __init__(self, _io, _parent=None, _root=None):
